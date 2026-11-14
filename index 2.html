@@ -1,0 +1,134 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14283d">
+<title>Neuro Atlas</title>
+<style>
+:root{--bg:#edf0f3;--c:#fbfcfd;--c2:#e2e8ee;--t:#14283d;--m:#5d6b7a;--a:#1f6f8b;--b:#d3dbe3;--h:#fff1c7;--hi:#7a5a00;--ok:#1a7f45;--no:#c23b2a;--serif:"Iowan Old Style",Palatino,Georgia,serif}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1a24;--c:#162533;--c2:#1e3243;--t:#e6edf3;--m:#93a4b5;--a:#6cc3d5;--b:#28405a;--h:#3a3012;--hi:#f2d27a;--ok:#4cc27f;--no:#ff8a78}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0 auto;max-width:820px;background:var(--bg);color:var(--t);font:16px/1.55 -apple-system,system-ui,sans-serif;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 50px)}
+h1,h2,h3{font-family:var(--serif);font-weight:700;margin:0}
+h1{font-size:30px;letter-spacing:-.02em;line-height:1.1}
+h2{font-size:22px;line-height:1.2;margin:28px 0 4px;padding-left:12px;border-left:5px solid var(--a)}
+h3{font-size:17px;margin-bottom:6px}
+.m{color:var(--m);font-size:14px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:6px 0 14px}
+.stats{display:flex;gap:14px;text-align:right}.stats b{display:block;font:700 20px var(--serif)}.stats span{font-size:12px;color:var(--m)}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:14px;margin:10px 0}
+.setup summary{cursor:pointer;font-weight:600;list-style:none}.setup summary::-webkit-details-marker{display:none}
+input,button{font:inherit;border-radius:9px;border:1px solid var(--b);padding:10px 12px;background:var(--c);color:var(--t)}
+input[type=number]{width:74px}input[type=file]{width:100%;padding:12px;border-style:dashed}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.row button{flex:1}
+#go{background:var(--a);color:var(--bg);border:0;font-weight:700}
+button:disabled{opacity:.45}
+.bar{height:6px;background:var(--c2);border-radius:6px;margin-top:12px;overflow:hidden}#pb{height:100%;width:0;background:var(--a);transition:width .4s}
+.tabs{display:flex;gap:4px;background:var(--c2);padding:4px;border-radius:12px;position:sticky;top:6px;z-index:5;margin:14px 0 8px}
+.tabs button{flex:1;border:0;background:none;padding:9px;font-weight:600;color:var(--m)}
+.tabs .on{background:var(--c);color:var(--t);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+#q{width:100%;margin-bottom:6px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:6px 12px;border:1px solid var(--b);border-radius:20px;background:var(--c);color:var(--t);font-size:13px;text-decoration:none}
+.hook{background:var(--h);color:var(--hi);border-radius:8px;padding:7px 10px;margin:8px 0;font-size:14px}
+li{margin:4px 0}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--b);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--c2)}
+.fc{min-height:150px;cursor:pointer;font-size:18px}.ans{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--b);color:var(--a);font-size:17px}.fc.on .ans{display:block}
+.rate{display:none;gap:8px}.rate.on{display:flex}.rate button{flex:1;font-weight:700}
+.again{color:var(--no)}.good{color:var(--ok)}
+.opt{display:block;width:100%;text-align:left;margin:7px 0}
+.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.bad{background:var(--no);color:#fff;border-color:var(--no)}
+.why{display:none;color:var(--m);margin-top:8px;font-size:14px}
+.foot{display:flex;gap:8px;margin-top:26px}.foot button,.foot label{flex:1;text-align:center;font-size:14px;padding:10px;border:1px solid var(--b);border-radius:9px;background:var(--c)}
+:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+</style></head><body>
+<div class="top"><div><h1>Neuro Atlas</h1><div class="m">Book to study atlas, automatically</div></div>
+<div class="stats"><div><b id="s1">0</b><span>parts</span></div><div><b id="s2">0</b><span>cards</span></div><div><b id="s3">0</b><span>mastered</span></div></div></div>
+<details class="card setup" id="setup" open><summary>Build from a book</summary>
+<p class="m">Choose the PDF once. The app reads it part by part and saves each finished part on this phone.</p>
+<input type="file" id="f" accept="application/pdf">
+<p class="m" id="st">No book chosen yet</p>
+Pages <input type="number" id="from" value="1" min="1"> to <input type="number" id="to" value="1" min="1"> &nbsp;Pages per part <input type="number" id="step" value="12" min="4" max="20">
+<div class="row"><button id="go">Start</button><button id="stop" disabled>Stop</button></div>
+<div class="bar"><div id="pb"></div></div>
+<p class="m">Keep the screen on while it works. Start again at any time to continue where it stopped.</p></details>
+<div class="tabs"><button data-t="s" class="on">Sheets</button><button data-t="f">Flashcards</button><button data-t="z">Quiz</button></div>
+<input id="q" placeholder="Search the whole atlas">
+<div id="out"></div>
+<div class="foot"><button id="exp">Save backup</button><label>Restore backup<input type="file" id="imp" accept=".json" hidden></label><button id="clr">Delete all</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),KEY='book_parts',LK='leitner',sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let pdf=null,stop=false,tab='s',qa=0,qc=0;
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rd=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||d)}catch(e){return JSON.parse(d)}};
+const load=()=>rd(KEY,'[]'),lt=()=>rd(LK,'{}');
+const msg=t=>$('#st').textContent=t;
+const wr=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){msg('Phone storage is full. Save a backup and delete old data.')}};
+const RULES='ADDITIONAL RULES: add a "hook" string (a short memory trick or mnemonic) to every section. Use as many sections as needed so nothing is skipped.\n\n';
+$('#f').onchange=async e=>{const f=e.target.files[0];if(!f)return;msg('Opening the book...');
+ try{pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;msg(pdf.numPages+' pages ready');$('#to').value=pdf.numPages}
+ catch(err){msg('This PDF could not be opened')}};
+$('#stop').onclick=()=>{stop=true;msg('Stopping after this part...')};
+$('#clr').onclick=()=>{if(confirm('Delete the whole atlas and your flashcard progress?')){localStorage.removeItem(KEY);localStorage.removeItem(LK);render()}};
+$('#exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({parts:load(),lt:lt()})],{type:'application/json'}));a.download='neuro-atlas-backup.json';a.click()};
+$('#imp').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());wr(KEY,j.parts||[]);wr(LK,j.lt||{});render()}catch(err){alert('This backup file is not valid')}};
+$('#q').oninput=render;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));render()});
+$('#go').onclick=async()=>{
+ if(!pdf)return msg('Choose the book PDF first');
+ const step=+$('#step').value||12,a=Math.max(1,+$('#from').value||1),z=Math.min(+$('#to').value||pdf.numPages,pdf.numPages);
+ stop=false;$('#go').disabled=true;$('#stop').disabled=false;$('#setup').open=true;
+ const done=new Set(load().map(x=>x.p));
+ for(let s=a;s<=z&&!stop;s+=step){
+  const e=Math.min(s+step-1,z),id=s+'-'+e;
+  if(!done.has(id)){let ok=false;
+   for(let tr=0;tr<4&&!ok&&!stop;tr++){
+    try{
+     msg('Pages '+id+': reading...');let t='';
+     for(let p=s;p<=e;p++){const pg=await pdf.getPage(p),c=await pg.getTextContent();t+='\n[Page '+p+']\n'+c.items.map(i=>i.str).join(' ')}
+     msg('Pages '+id+' of '+z+': building the atlas...');
+     const r=await fetch('/api/api/atlas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:RULES+t})});
+     const j=await r.json();
+     if(!r.ok){
+      if(/No text/i.test(j.error||'')){ok=true;break}
+      if(/quota|rate|exhaust|429|overload|demand|unavailable/i.test(j.error||'')){msg('Limit reached. Waiting 60 seconds, then continuing...');await sleep(60000);continue}
+      throw new Error(j.error||'Error')}
+     const arr=load();arr.push({p:id,s,d:j});arr.sort((x,y)=>x.s-y.s);wr(KEY,arr);ok=true;render();
+    }catch(err){msg('Pages '+id+': '+err.message+'. Trying again...');await sleep(5000)}
+   }}
+  $('#pb').style.width=Math.round((e-a+1)/(z-a+1)*100)+'%';
+ }
+ msg(stop?'Stopped. Press Start to continue.':'Finished. Your atlas is ready below.');
+ $('#go').disabled=false;$('#stop').disabled=true;if(!stop)$('#setup').open=false;
+};
+const sec=s=>{let h=`<div class="card"><h3>${esc(s.heading)}</h3>`;
+ if(s.hook)h+=`<div class="hook">${esc(s.hook)}</div>`;
+ h+=`<ul>${(s.points||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul>`;
+ if(s.table&&s.table.headers)h+=`<div class="sc"><table><tr>${s.table.headers.map(x=>`<th>${esc(x)}</th>`).join('')}</tr>${(s.table.rows||[]).map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+ return h+'</div>'};
+const cards=P=>P.flatMap(x=>(x.d.flashcards||[]).map((f,i)=>({id:x.p+'#'+i,f,p:x.p})));
+function render(){
+ const P=load(),L=lt(),q=$('#q').value.toLowerCase(),has=o=>!q||JSON.stringify(o).toLowerCase().includes(q);
+ const all=cards(P),open=all.filter(c=>(L[c.id]||1)<4);
+ $('#s1').textContent=P.length;$('#s2').textContent=all.length;$('#s3').textContent=all.length-open.length;
+ let h='';
+ if(!P.length)h='<div class="card"><h3>Your atlas is empty</h3><p class="m">Open Build from a book above, choose the PDF and press Start. Finished parts appear here one by one.</p></div>';
+ if(tab=='s'&&P.length){h+=`<div class="chips">${P.map(x=>`<a class="chip" href="#p${x.p}">${esc((x.d.title||'Part').slice(0,28))}</a>`).join('')}</div>`;
+  P.forEach(x=>{const ss=(x.d.sections||[]).filter(has);if(!ss.length)return;
+   h+=`<h2 id="p${x.p}">${esc(x.d.title)}</h2><p class="m">Pages ${esc(x.p)}. ${esc(x.d.summary)}</p>`+ss.map(sec).join('')})}
+ if(tab=='f'&&P.length){const d=open.filter(c=>has(c.f)).sort((a,b)=>(L[a.id]||1)-(L[b.id]||1));
+  if(!d.length)h+='<div class="card"><h3>Nothing left to review</h3><p class="m">Every card here is mastered. Clear the search or build more parts.</p></div>';
+  else{const c=d[0];h+=`<p class="m">${d.length} cards to review. This card is in box ${L[c.id]||1} of 4.</p><div class="card fc" id="fc" onclick="flip()"><b>${esc(c.f.q)}</b><div class="ans">${esc(c.f.a)}</div><div class="m" style="margin-top:10px">Pages ${esc(c.p)}. Tap to see the answer.</div></div><div class="rate" id="rt"><button class="again" onclick="rate('${c.id}',0)">Again</button><button class="good" onclick="rate('${c.id}',1)">Got it</button></div>`}}
+ if(tab=='z'&&P.length){qa=qc=0;h+='<p class="m" id="sc">Score: 0 of 0</p>';let n=0;
+  P.forEach(x=>(x.d.quiz||[]).filter(has).forEach(z=>{n++;h+=`<div class="card"><b>${n}. ${esc(z.q)}</b>`+(z.options||[]).map((o,j)=>`<button class="opt" data-c="${z.answer===j?1:0}" onclick="pick(this)">${esc(o)}</button>`).join('')+`<div class="why">${esc(z.why)}</div></div>`}))}
+ $('#out').innerHTML=h;
+}
+function flip(){$('#fc').classList.add('on');$('#rt').classList.add('on')}
+function rate(id,g){const L=lt();L[id]=g?Math.min((L[id]||1)+1,4):1;wr(LK,L);render()}
+function pick(b){const p=b.parentNode;
+ p.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.dataset.c=='1')x.classList.add('ok')});
+ qa++;if(b.dataset.c=='1')qc++;else b.classList.add('bad');
+ p.querySelector('.why').style.display='block';$('#sc').textContent='Score: '+qc+' of '+qa}
+render();
+</script></body></html>
